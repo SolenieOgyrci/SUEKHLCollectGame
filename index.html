@@ -1099,7 +1099,9 @@
             // Сброс прогресса
             playerCards = {};
             packs.forEach(pack => pack.load = 0);
-            rebirthMultiplier *= option.multiplier; // Умножаем множители
+            
+            // ЗАМЕНЯЕМ множитель, а не умножаем!
+            rebirthMultiplier = option.multiplier;
             rebirths = currentRebirthOption + 1;
             
             // Бонусные SU
@@ -1117,7 +1119,7 @@
             updateAchievements();
             saveGame();
             
-            showNotification(`🎉 Перерождение завершено! Множитель дохода: x${rebirthMultiplier.toFixed(1)}`);
+            showNotification(`🎉 Перерождение завершено! Множитель дохода: x${rebirthMultiplier}`);
             closeRebirthModal();
         }
 
