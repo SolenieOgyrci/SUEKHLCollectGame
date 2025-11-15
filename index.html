@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбей их всех! - Salavat Yulaev RNG</title>
+    <style>
+        :root {
+            --main-blue: #0065b3;
+            --light-blue: #4a90e2;
+            --dark-blue: #004a8f;
+            --white: #ffffff;
+            --green: #00a651;
+            --light-green: #4cda8c;
+            --red: #e30613;
+            --light-red: #ff4d5a;
+            --gold: #ffd700;
+            --orange: #ff9800;
+            --purple: #9c27b0;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-blue);
+            color: var(--white);
+            text-align: center;
+        }
+        
+        .header {
+            background: linear-gradient(to bottom, var(--main-blue), var(--dark-blue));
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .currency {
+            font-size: 1.5rem;
+            margin: 15px 0;
+            font-weight: bold;
+            background-color: var(--green);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .income-multiplier {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            color: var(--gold);
+            font-weight: bold;
+        }
+        
+        .packs-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .pack {
+            background: linear-gradient(to bottom right, var(--light-blue), var(--main-blue));
+            border: 2px solid var(--white);
+            border-radius: 10px;
+            padding: 15px;
+            width: 220px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .pack:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pack-overload-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, var(--orange), var(--gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: black;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pack-overload-ready {
+            background: linear-gradient(45deg, var(--gold), #ffeb3b);
+            animation: glow 1.5s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 5px var(--gold); }
+            to { box-shadow: 0 0 15px var(--gold), 0 0 20px var(--orange); }
+        }
+        
+        .pack h3 {
+            margin-top: 0;
+            color: var(--white);
+        }
+        
+        .pack-price {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--white);
+            background-color: var(--green);
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .load-info {
+            font-size: 0.8rem;
+            margin: 8px 0;
+            color: var(--light-green);
+        }
+        
+        .load-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .load-progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--green), var(--light-green));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .load-bar-overload {
+            background: linear-gradient(to right, var(--orange), var(--gold));
+        }
+        
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            min-height: 200px;
+        }
+        
+        .card {
+            width: 150px;
+            height: 200px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .card:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        
+        .card-upgradable::after {
+            content: "↑";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background-color: var(--gold);
+            color: black;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .card-common { background: linear-gradient(to bottom right, #a0a0a0, #808080); border: 2px solid #c0c0c0; }
+        .card-rare { background: linear-gradient(to bottom right, #4a90e2, #0065b3); border: 2px solid #80c0ff; }
+        .card-epic { background: linear-gradient(to bottom right, #9c27b0, #7b1fa2); border: 2px solid #d05ce3; }
+        .card-super-epic { background: linear-gradient(to bottom right, #e91e63, #c2185b); border: 2px solid #ff5c8d; }
+        .card-legendary { background: linear-gradient(to bottom right, #ff9800, #f57c00); border: 2px solid #ffc947; }
+        .card-mythic { background: linear-gradient(to bottom right, #4caf50, #388e3c); border: 2px solid #81c784; }
+        .card-vanished { background: linear-gradient(to bottom right, #607d8b, #455a64); border: 2px solid #90a4ae; }
+        .card-assistant { background: linear-gradient(to bottom right, #ff5722, #d84315); border: 2px solid #ff8a65; }
+        .card-captain { background: linear-gradient(to bottom right, #9c27b0, #7b1fa2); border: 2px solid #d05ce3; }
+        .card-combined { background: linear-gradient(to bottom right, #9c27b0, #ff5722); border: 2px solid #e05ce3; }
+        .card-infinity { 
+            background: linear-gradient(to bottom right, #00bcd4, #0097a7); 
+            border: 2px solid #80deea; 
+            animation: glow 2s infinite alternate; 
+        }
+        
+        .card-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+        
+        .card-rarity {
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        
+        .card-income {
+            font-size: 0.9rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .card-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--red);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .total-income {
+            font-size: 1.3rem;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: var(--main-blue);
+            border-radius: 10px;
+            display: inline-block;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            background-color: var(--green);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .notification.error {
+            background-color: var(--red);
+        }
+        
+        .notification.warning {
+            background-color: var(--orange);
+        }
+        
+        .notification.show {
+            opacity: 1;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background-color: var(--main-blue);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background-color: var(--green);
+            transform: scale(1.05);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(to bottom, var(--main-blue), var(--dark-blue));
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            text-align: center;
+            border: 2px solid var(--white);
+        }
+        
+        .modal-close {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--white);
+            margin-top: -10px;
+            margin-right: -10px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .modal-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-button.confirm {
+            background-color: var(--green);
+            color: white;
+        }
+        
+        .modal-button.cancel {
+            background-color: var(--red);
+            color: white;
+        }
+        
+        .modal-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .upgrade-cost {
+            font-size: 0.8rem;
+            background-color: var(--gold);
+            color: black;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+        
+        .rebirth-option {
+            background: linear-gradient(to bottom right, var(--purple), #7b1fa2);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .rebirth-option:hover {
+            transform: scale(1.02);
+            background: linear-gradient(to bottom right, #ab47bc, #8e24aa);
+        }
+        
+        .rebirth-option.locked {
+            background: linear-gradient(to bottom right, #666, #444);
+            border: 2px solid #999;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .rebirth-option.locked:hover {
+            transform: none;
+            background: linear-gradient(to bottom right, #666, #444);
+        }
+        
+        .achievement {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 5px 0;
+            text-align: left;
+        }
+        
+        .achievement.gold {
+            border: 2px solid var(--gold);
+            background: linear-gradient(to right, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+        }
+        
+        .achievement.unlocked {
+            background: rgba(0, 166, 81, 0.2);
+        }
+        
+        .collection {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 5px 0;
+            text-align: left;
+        }
+        
+        .collection.completed {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid var(--gold);
+        }
+        
+        .mini-game {
+            background: linear-gradient(to bottom right, var(--light-blue), var(--main-blue));
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        
+        .game-button {
+            padding: 10px 20px;
+            background-color: var(--green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://upload.wikimedia.org/wikipedia/ru/a/a0/HC_Salavat_Yulaev_Logo.svg" alt="Salavat Yulaev Logo" class="logo">
+        <h1>Выбей их всех!</h1>
+    </div>
+    
+    <div class="currency">SU: <span id="currency-value">1000</span></div>
+    <div class="income-multiplier" id="income-multiplier">Множитель дохода: x1.0</div>
+    <div class="total-income">Общий доход в секунду: <span id="total-income">0</span> SU</div>
+    
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('packs')">Паки</button>
+        <button class="tab" onclick="switchTab('rebirth')">Перерождение</button>
+        <button class="tab" onclick="switchTab('collections')">Коллекции</button>
+        <button class="tab" onclick="switchTab('achievements')">Достижения</button>
+        <button class="tab" onclick="switchTab('minigames')">Мини-игры</button>
+    </div>
+    
+    <div id="packs-tab" class="tab-content active">
+        <div class="packs-container" id="packs-container">
+            <!-- Паки будут сгенерированы JavaScript -->
+        </div>
+    </div>
+    
+    <div id="rebirth-tab" class="tab-content">
+        <h2>Система Перерождения</h2>
+        <p>Сбрось весь прогресс за постоянные бонусы к доходу!</p>
+        
+        <div class="rebirth-option" id="rebirth-0" onclick="openRebirthModal(0)">
+            <h3>Первое перерождение</h3>
+            <p>Цена: 50,000 SU</p>
+            <p>Награда: Множитель дохода x1.5</p>
+        </div>
+        
+        <div class="rebirth-option locked" id="rebirth-1">
+            <h3>Второе перерождение</h3>
+            <p>Цена: 500,000 SU</p>
+            <p>Награда: Множитель дохода x3.0</p>
+            <p><em>Требуется: Первое перерождение</em></p>
+        </div>
+        
+        <div class="rebirth-option locked" id="rebirth-2">
+            <h3>Третье перерождение</h3>
+            <p>Цена: 5,000,000 SU</p>
+            <p>Награда: Множитель дохода x5.0</p>
+            <p><em>Требуется: Второе перерождение</em></p>
+        </div>
+        
+        <div class="rebirth-option locked" id="rebirth-3">
+            <h3>Финальное перерождение</h3>
+            <p>Цена: 100,000,000 SU</p>
+            <p>Награда: Множитель дохода x10.0 + 250,000 SU</p>
+            <p><em>Требуется: Третье перерождение</em></p>
+        </div>
+    </div>
+    
+    <div id="collections-tab" class="tab-content">
+        <h2>Коллекции</h2>
+        <div id="collections-container">
+            <!-- Коллекции будут сгенерированы JavaScript -->
+        </div>
+    </div>
+    
+    <div id="achievements-tab" class="tab-content">
+        <h2>Достижения</h2>
+        <div id="achievements-container">
+            <!-- Достижения будут сгенерированы JavaScript -->
+        </div>
+    </div>
+    
+    <div id="minigames-tab" class="tab-content">
+        <h2>Мини-игры</h2>
+        
+        <div class="mini-game">
+            <h3>🎰 Lucky-Man</h3>
+            <p>Открой специальный пак! Чем лучше карта - тем больше награда!</p>
+            <p>Стоимость: 2,500 SU</p>
+            <p>Награда: до 25,000 SU</p>
+            <button class="game-button" onclick="startLuckyManGame()">Играть</button>
+            <div id="lucky-man-result"></div>
+        </div>
+    </div>
+    
+    <div class="cards-container" id="cards-container">
+        <!-- Карточки будут добавляться сюда -->
+    </div>
+    
+    <!-- Модальные окна -->
+    <div class="modal" id="upgrade-modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeUpgradeModal()">×</span>
+            <h2>Прокачка карточки</h2>
+            <p>Вы действительно хотите прокачать карточку <strong id="upgrade-card-name"></strong>?</p>
+            <p><strong>Стоимость:</strong> 25,000 SU</p>
+            <p><strong>Шанс успеха:</strong> 10%</p>
+            <p><strong>Риск потери:</strong> 10%</p>
+            <div class="modal-buttons">
+                <button class="modal-button confirm" onclick="confirmUpgrade()">Прокачать</button>
+                <button class="modal-button cancel" onclick="closeUpgradeModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="rebirth-modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeRebirthModal()">×</span>
+            <h2>Перерождение</h2>
+            <p id="rebirth-description"></p>
+            <p><strong>Внимание!</strong> Вы потеряете все карточки и прогресс!</p>
+            <div class="modal-buttons">
+                <button class="modal-button confirm" onclick="confirmRebirth()">Переродиться</button>
+                <button class="modal-button cancel" onclick="closeRebirthModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Данные игроков с порядком редкостей для прокачки
+        const players = [
+            { name: "ererer_19991", income: 50, rarity: "Обычный", rarityClass: "common", upgradeOrder: 0 },
+            { name: "Redris", income: 100, rarity: "Обычный", rarityClass: "common", upgradeOrder: 0 },
+            { name: "ZXzGreafzXZ", income: 125, rarity: "Редкий", rarityClass: "rare", upgradeOrder: 1 },
+            { name: "BILAZ", income: 250, rarity: "Сверхредкий", rarityClass: "super-epic", upgradeOrder: 2 },
+            { name: "Chorni | ST", income: 350, rarity: "Сверхредкий", rarityClass: "super-epic", upgradeOrder: 2 },
+            { name: "Red_himik", income: 650, rarity: "Эпический", rarityClass: "epic", upgradeOrder: 3 },
+            { name: "VIZI", income: 1250, rarity: "Легендарный", rarityClass: "legendary", upgradeOrder: 4 },
+            { name: "Tysedn", income: 1680, rarity: "Легендарный", rarityClass: "legendary", upgradeOrder: 4 },
+            { name: "Chorni | GK", income: 2500, rarity: "Мифический", rarityClass: "mythic", upgradeOrder: 5 },
+            { name: "sfwr_x1zipe", income: 2750, rarity: "Исчезнувший", rarityClass: "vanished", upgradeOrder: 6 },
+            { name: "White", income: 3350, rarity: "Исчезнувший", rarityClass: "vanished", upgradeOrder: 6 },
+            { name: "A | Chorni", income: 5000, rarity: "Ассистентский", rarityClass: "assistant", upgradeOrder: 7 },
+            { name: "Gartik", income: 10000, rarity: "Капитанский", rarityClass: "captain", upgradeOrder: 8 },
+            { name: "Redris-Red_Himik", income: 15000, rarity: "Комбинированный-Обычный", rarityClass: "combined", upgradeOrder: -1 },
+            { name: "Chorni-Gartik", income: 50000, rarity: "INFINITY", rarityClass: "infinity", upgradeOrder: -1 }
+        ];
+
+        // Порядок редкостей для прокачки
+        const rarityOrder = ["common", "rare", "super-epic", "epic", "legendary", "mythic", "vanished", "assistant", "captain"];
+
+        // Данные паков (с исправленными редкостями)
+        const packs = [
+            { name: "Базовый", price: 500, chances: { "common": 75, "rare": 25 }, load: 0 },
+            { name: "Расширенный", price: 3750, chances: { "common": 50, "rare": 30, "super-epic": 15, "epic": 5 }, load: 0 },
+            { name: "Улучшенный", price: 11250, chances: { "rare": 75, "super-epic": 20, "epic": 5 }, load: 0 },
+            { name: "Голевой", price: 30000, chances: { "common": 5, "rare": 5, "super-epic": 60, "epic": 20, "legendary": 10 }, load: 0 },
+            { name: "Вершины", price: 75000, chances: { "super-epic": 40, "epic": 40, "legendary": 20 }, load: 0 },
+            { name: "Новое Начало", price: 225000, chances: { "legendary": 94, "mythic": 5, "vanished": 1 }, load: 0 },
+            { name: "Легенда о Игроках", price: 600000, chances: { "common": 10, "mythic": 50, "vanished": 35, "assistant": 5 }, load: 0 },
+            { name: "Легенда о Игроках 2", price: 1200000, chances: { "mythic": 5, "vanished": 75, "assistant": 15, "captain": 5 }, load: 0 },
+            { name: "Комбо", price: 2250000, chances: { "mythic": 5, "combined": 95 }, load: 0 },
+            { name: "ALL OR NOTHING", price: 7500000, chances: { "common": 25, "infinity": 75 }, load: 0 }
+        ];
+
+        // Система перерождения
+        const rebirthOptions = [
+            { price: 50000, multiplier: 1.5, name: "Первое перерождение" },
+            { price: 500000, multiplier: 3.0, name: "Второе перерождение" },
+            { price: 5000000, multiplier: 5.0, name: "Третье перерождение" },
+            { price: 100000000, multiplier: 10.0, name: "Финальное перерождение", bonusSU: 250000 }
+        ];
+
+        // Коллекции
+        const collections = [
+            { 
+                name: "Фанат Черного", 
+                cards: ["Chorni | ST", "Chorni | GK", "A | Chorni"], 
+                bonus: 0.5,
+                completed: false
+            },
+            { 
+                name: "Комбинированный без инированный", 
+                cards: ["Redris", "Red_himik"], 
+                bonus: 0.1,
+                completed: false
+            },
+            { 
+                name: "Тайлера здесь нет", 
+                cards: ["sfwr_x1zipe", "White"], 
+                bonus: 0.1,
+                completed: false
+            },
+            { 
+                name: "Управляющая компания", 
+                cards: ["A | Chorni", "Gartik"], 
+                bonus: 0.2,
+                completed: false
+            },
+            { 
+                name: "Заявка на победу", 
+                cards: ["Gartik", "Redris-Red_Himik", "Chorni-Gartik"], 
+                bonus: 1.5,
+                completed: false
+            }
+        ];
+
+        // Достижения
+        const achievements = [
+            // Открытие паков
+            { id: "first_pack", name: "Он пополз!", description: "Открыть первый пак", condition: (game) => game.stats.packsOpened >= 1, unlocked: false },
+            { id: "third_pack", name: "Он встал!", description: "Открыть 3 пака", condition: (game) => game.stats.packsOpened >= 3, unlocked: false },
+            { id: "tenth_pack", name: "Он ходит!", description: "Открыть 10 паков", condition: (game) => game.stats.packsOpened >= 10, unlocked: false },
+            { id: "hundredth_pack", name: "Первый раз в первый класс", description: "Открыть 100 паков", condition: (game) => game.stats.packsOpened >= 100, unlocked: false },
+            { id: "two_fifty_pack", name: "Выпускной", description: "Открыть 250 паков", condition: (game) => game.stats.packsOpened >= 250, unlocked: false },
+            { id: "five_hundred_pack", name: "Первая работа", description: "Открыть 500 паков", condition: (game) => game.stats.packsOpened >= 500, unlocked: false },
+            { id: "thousand_pack", name: "Пенсия", description: "Открыть 1000 паков", condition: (game) => game.stats.packsOpened >= 1000, unlocked: false },
+            { id: "five_thousand_pack", name: "Линия жизни", description: "Открыть 5000 паков", condition: (game) => game.stats.packsOpened >= 5000, unlocked: false, gold: true },
+            
+            // Дубликаты
+            { id: "five_duplicates", name: "Разнообразия НЕ БУДЕТ!", description: "Получить 5 дубликатов одной карточки", condition: (game) => Math.max(...Object.values(game.playerCards).map(c => c.count)) >= 5, unlocked: false },
+            { id: "ten_duplicates", name: "Ценитель", description: "Получить 10 дубликатов одной карточки", condition: (game) => Math.max(...Object.values(game.playerCards).map(c => c.count)) >= 10, unlocked: false },
+            { id: "twenty_duplicates", name: "Фанат", description: "Получить 20 дубликатов одной карточки", condition: (game) => Math.max(...Object.values(game.playerCards).map(c => c.count)) >= 20, unlocked: false },
+            { id: "hundred_duplicates", name: "Сталкер", description: "Получить 100 дубликатов одной карточки", condition: (game) => Math.max(...Object.values(game.playerCards).map(c => c.count)) >= 100, unlocked: false },
+            { id: "five_hundred_duplicates", name: "Yandere", description: "Получить 500 дубликатов одной карточки", condition: (game) => Math.max(...Object.values(game.playerCards).map(c => c.count)) >= 500, unlocked: false },
+            { id: "thousand_duplicates", name: "Yangire", description: "Получить 1000 дубликатов одной карточки", condition: (game) => Math.max(...Object.values(game.playerCards).map(c => c.count)) >= 1000, unlocked: false, gold: true },
+            
+            // Нагруженность
+            { id: "first_overload", name: "Перегрузка", description: "Воспользоваться первой нагруженностью", condition: (game) => game.stats.overloadsUsed >= 1, unlocked: false },
+            { id: "five_overloads", name: "Системный сбой", description: "5 нагруженностей", condition: (game) => game.stats.overloadsUsed >= 5, unlocked: false },
+            { id: "fifteen_overloads", name: "Что-то создает скриптовые ошибки", description: "15 нагруженностей", condition: (game) => game.stats.overloadsUsed >= 15, unlocked: false },
+            { id: "fifty_overloads", name: "SUWeb", description: "50 нагруженностей", condition: (game) => game.stats.overloadsUsed >= 50, unlocked: false },
+            
+            // Перерождения
+            { id: "first_rebirth", name: "re:", description: "1 перерождение", condition: (game) => game.rebirths >= 1, unlocked: false },
+            { id: "second_rebirth", name: "re:re:", description: "2 перерождения", condition: (game) => game.rebirths >= 2, unlocked: false },
+            { id: "third_rebirth", name: "re:re:re:", description: "3 перерождения", condition: (game) => game.rebirths >= 3, unlocked: false },
+            { id: "final_rebirth", name: "RE:FINAL", description: "Последнее перерождение", condition: (game) => game.rebirths >= 4, unlocked: false },
+            
+            // Прочие
+            { id: "unlucky", name: "Неудачник", description: "Выбить из ALL OR NOTHING карточку Обычной редкости", condition: (game) => game.stats.unluckyAllOrNothing, unlocked: false },
+            { id: "collector", name: "Коллекционер", description: "Собрать все коллекции", condition: (game) => game.collectionsCompleted >= collections.length, unlocked: false }
+        ];
+
+        // Игровые переменные
+        let currency = 1000;
+        let playerCards = {};
+        let totalIncome = 0;
+        let incomeInterval;
+        let currentUpgradeCard = null;
+        let currentRebirthOption = null;
+        let rebirthMultiplier = 1.0;
+        let rebirths = 0;
+        let collectionsCompleted = 0;
+        
+        // Статистика
+        let gameStats = {
+            packsOpened: 0,
+            overloadsUsed: 0,
+            unluckyAllOrNothing: false
+        };
+
+        // Инициализация игры
+        function initGame() {
+            loadGame();
+            renderPacks();
+            updateCurrencyDisplay();
+            updateTotalIncome();
+            updateRebirthOptions();
+            startIncomeTimer();
+            updateCollections();
+            updateAchievements();
+        }
+
+        // Загрузка игры
+        function loadGame() {
+            const savedGame = localStorage.getItem('salavatGame');
+            if (savedGame) {
+                const gameData = JSON.parse(savedGame);
+                currency = gameData.currency || 1000;
+                playerCards = gameData.playerCards || {};
+                rebirthMultiplier = gameData.rebirthMultiplier || 1.0;
+                rebirths = gameData.rebirths || 0;
+                collectionsCompleted = gameData.collectionsCompleted || 0;
+                gameStats = gameData.gameStats || { packsOpened: 0, overloadsUsed: 0, unluckyAllOrNothing: false };
+                
+                // Восстанавливаем паки
+                if (gameData.packs) {
+                    packs.forEach((pack, index) => {
+                        if (gameData.packs[index]) {
+                            pack.load = gameData.packs[index].load;
+                        }
+                    });
+                }
+            }
+        }
+
+        // Сохранение игры
+        function saveGame() {
+            const gameData = {
+                currency,
+                playerCards,
+                rebirthMultiplier,
+                rebirths,
+                collectionsCompleted,
+                gameStats,
+                packs: packs.map(pack => ({ load: pack.load }))
+            };
+            localStorage.setItem('salavatGame', JSON.stringify(gameData));
+        }
+
+        // Обновление опций перерождения
+        function updateRebirthOptions() {
+            rebirthOptions.forEach((option, index) => {
+                const element = document.getElementById(`rebirth-${index}`);
+                if (index < rebirths) {
+                    // Уже куплено (прошлые перерождения)
+                    element.className = 'rebirth-option';
+                    element.innerHTML = `
+                        <h3>${option.name} ✅</h3>
+                        <p><em>Уже приобретено</em></p>
+                        <p>Награда: Множитель дохода x${option.multiplier}</p>
+                    `;
+                    element.onclick = null;
+                } else if (index === rebirths) {
+                    // Доступно для покупки (текущее перерождение)
+                    element.className = 'rebirth-option';
+                    element.innerHTML = `
+                        <h3>${option.name}</h3>
+                        <p>Цена: ${formatNumber(option.price)} SU</p>
+                        <p>Награда: Множитель дохода x${option.multiplier}${option.bonusSU ? ` + ${formatNumber(option.bonusSU)} SU` : ''}</p>
+                    `;
+                    element.onclick = () => openRebirthModal(index);
+                } else {
+                    // Заблокировано (будущие перерождения)
+                    element.className = 'rebirth-option locked';
+                    element.innerHTML = `
+                        <h3>${option.name}</h3>
+                        <p>Цена: ${formatNumber(option.price)} SU</p>
+                        <p>Награда: Множитель дохода x${option.multiplier}</p>
+                        <p><em>Требуется: ${rebirthOptions[index-1].name}</em></p>
+                    `;
+                    element.onclick = null;
+                }
+            });
+        }
+
+        // Переключение вкладок
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // Рендер паков
+        function renderPacks() {
+            const packsContainer = document.getElementById('packs-container');
+            packsContainer.innerHTML = '';
+            
+            packs.forEach((pack, index) => {
+                const packElement = document.createElement('div');
+                const isOverloaded = pack.load >= 100;
+                packElement.className = `pack`;
+                
+                let loadInfo = '';
+                if (pack.load > 0) {
+                    loadInfo = `<div class="load-info">Нагруженность: ${pack.load}%</div>`;
+                }
+                
+                packElement.innerHTML = `
+                    ${pack.load > 0 ? `<div class="pack-overload-indicator ${isOverloaded ? 'pack-overload-ready' : ''}">${pack.load}%</div>` : ''}
+                    <h3>${pack.name}</h3>
+                    <div class="pack-price">${formatNumber(pack.price)} SU</div>
+                    ${loadInfo}
+                    <div class="load-bar-container">
+                        <div class="load-progress ${isOverloaded ? 'load-bar-overload' : ''}" style="width: ${pack.load}%"></div>
+                    </div>
+                    <p>${getChancesText(pack.chances)}</p>
+                    ${isOverloaded ? '<p style="color: var(--gold); font-weight: bold; font-size: 0.9rem;">⚡ Следующий пак даст 2-5 карт!</p>' : ''}
+                `;
+                packElement.addEventListener('click', () => buyPack(index));
+                packsContainer.appendChild(packElement);
+            });
+        }
+
+        // Форматирование чисел с пробелами
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        // Получить текст шансов для пака
+        function getChancesText(chances) {
+            let text = '';
+            for (const [rarity, chance] of Object.entries(chances)) {
+                const rarityName = getRarityName(rarity);
+                text += `${rarityName}: ${chance}%<br>`;
+            }
+            return text;
+        }
+
+        // Получить название редкости на русском
+        function getRarityName(rarityKey) {
+            const rarityNames = {
+                "common": "Обычный",
+                "rare": "Редкий",
+                "super-epic": "Сверхредкий",
+                "epic": "Эпический",
+                "legendary": "Легендарный",
+                "mythic": "Мифический",
+                "vanished": "Исчезнувший",
+                "assistant": "Ассистентский",
+                "captain": "Капитанский",
+                "combined": "Комбинированный",
+                "infinity": "INFINITY"
+            };
+            return rarityNames[rarityKey] || rarityKey;
+        }
+
+        // Покупка пака
+        function buyPack(packIndex) {
+            const pack = packs[packIndex];
+            
+            if (currency < pack.price) {
+                showNotification("Недостаточно SU!", true);
+                return;
+            }
+            
+            currency -= pack.price;
+            gameStats.packsOpened++;
+            updateCurrencyDisplay();
+            
+            // Добавление нагруженности
+            const loadIncrease = Math.floor(Math.random() * 10) + 1;
+            pack.load = Math.min(100, pack.load + loadIncrease);
+            
+            const isOverloaded = pack.load >= 100;
+            let cardsCount = 1;
+            
+            if (isOverloaded && pack.name !== "ALL OR NOTHING") {
+                cardsCount = Math.floor(Math.random() * 4) + 2; // 2-5 карточек
+                pack.load = 0; // Сбрасываем нагруженность
+                gameStats.overloadsUsed++;
+            }
+            
+            const newCards = [];
+            for (let i = 0; i < cardsCount; i++) {
+                const card = getCardFromPack(pack.chances);
+                newCards.push(card);
+                
+                // Проверка на неудачу в ALL OR NOTHING
+                if (pack.name === "ALL OR NOTHING" && card.rarityClass === "common") {
+                    gameStats.unluckyAllOrNothing = true;
+                }
+                
+                addCard(card);
+            }
+            
+            renderPacks();
+            updateAchievements();
+            saveGame();
+            
+            let notificationText = `Получено: ${newCards.map(card => `${card.name} (${card.rarity})`).join(', ')}`;
+            if (cardsCount > 1) {
+                notificationText = `⚡ МУЛЬТИДРОП! ${cardsCount} карт: ` + notificationText;
+            }
+            
+            showNotification(notificationText);
+        }
+
+        // Получить карту из пака
+        function getCardFromPack(chances) {
+            const randomValue = Math.random() * 100;
+            let currentChance = 0;
+            
+            for (const [rarity, chance] of Object.entries(chances)) {
+                currentChance += chance;
+                if (randomValue <= currentChance) {
+                    const playersOfRarity = players.filter(player => player.rarityClass === rarity);
+                    if (playersOfRarity.length > 0) {
+                        return playersOfRarity[Math.floor(Math.random() * playersOfRarity.length)];
+                    }
+                }
+            }
+            
+            const commonPlayers = players.filter(player => player.rarityClass === "common");
+            return commonPlayers[Math.floor(Math.random() * commonPlayers.length)];
+        }
+
+        // Добавить карту
+        function addCard(player) {
+            if (playerCards[player.name]) {
+                playerCards[player.name].count++;
+            } else {
+                playerCards[player.name] = {
+                    player: player,
+                    count: 1
+                };
+            }
+            
+            updateCardsDisplay();
+            updateTotalIncome();
+            updateCollections();
+        }
+
+        // Удалить карту
+        function removeCard(playerName) {
+            if (playerCards[playerName]) {
+                playerCards[playerName].count--;
+                
+                if (playerCards[playerName].count <= 0) {
+                    delete playerCards[playerName];
+                }
+                
+                updateCardsDisplay();
+                updateTotalIncome();
+                updateCollections();
+            }
+        }
+
+        // Открыть модальное окно прокачки
+        function openUpgradeModal(playerName) {
+            const cardData = playerCards[playerName];
+            if (!cardData) return;
+            
+            if (currency < 25000) {
+                showNotification("Недостаточно SU для прокачки!", true);
+                return;
+            }
+            
+            currentUpgradeCard = playerName;
+            document.getElementById('upgrade-card-name').textContent = cardData.player.name;
+            document.getElementById('upgrade-modal').style.display = 'flex';
+        }
+
+        // Закрыть модальное окно прокачки
+        function closeUpgradeModal() {
+            document.getElementById('upgrade-modal').style.display = 'none';
+            currentUpgradeCard = null;
+        }
+
+        // Подтвердить прокачку
+        function confirmUpgrade() {
+            if (!currentUpgradeCard) return;
+            
+            const cardData = playerCards[currentUpgradeCard];
+            if (!cardData) return;
+            
+            const player = cardData.player;
+            
+            // Проверка возможности прокачки
+            if (player.upgradeOrder === -1) {
+                showNotification("Эту карту нельзя прокачать!", true);
+                closeUpgradeModal();
+                return;
+            }
+            
+            currency -= 25000;
+            updateCurrencyDisplay();
+            
+            const randomValue = Math.random();
+            
+            // 10% шанс потери карты
+            if (randomValue < 0.1) {
+                removeCard(currentUpgradeCard);
+                showNotification(`💔 Карта ${player.name} потеряна при прокачке!`, true);
+                closeUpgradeModal();
+                saveGame();
+                return;
+            }
+            
+            // 10% шанс успеха
+            if (randomValue < 0.2) {
+                const nextRarityIndex = player.upgradeOrder + 1;
+                if (nextRarityIndex >= rarityOrder.length) {
+                    showNotification("Карта уже максимальной редкости!", true);
+                    closeUpgradeModal();
+                    return;
+                }
+                
+                const nextRarity = rarityOrder[nextRarityIndex];
+                const availableUpgrades = players.filter(p => 
+                    p.rarityClass === nextRarity && p.upgradeOrder === nextRarityIndex
+                );
+                
+                if (availableUpgrades.length > 0) {
+                    const newPlayer = availableUpgrades[Math.floor(Math.random() * availableUpgrades.length)];
+                    
+                    // Заменяем только одну карту
+                    if (cardData.count > 1) {
+                        cardData.count--;
+                        addCard(newPlayer);
+                    } else {
+                        delete playerCards[currentUpgradeCard];
+                        addCard(newPlayer);
+                    }
+                    
+                    showNotification(`🎉 Успех! ${player.name} → ${newPlayer.name}`, false);
+                }
+            } else {
+                showNotification("Прокачка не удалась! Карта сохранена.", true);
+            }
+            
+            closeUpgradeModal();
+            saveGame();
+        }
+
+        // Открыть модальное окно перерождения
+        function openRebirthModal(optionIndex) {
+            const option = rebirthOptions[optionIndex];
+            if (!option) return;
+            
+            if (currency < option.price) {
+                showNotification(`Недостаточно SU! Нужно: ${formatNumber(option.price)}`, true);
+                return;
+            }
+            
+            currentRebirthOption = optionIndex;
+            document.getElementById('rebirth-description').textContent = 
+                `Вы получите множитель дохода x${option.multiplier}${option.bonusSU ? ` + ${formatNumber(option.bonusSU)} SU` : ''}`;
+            document.getElementById('rebirth-modal').style.display = 'flex';
+        }
+
+        // Закрыть модальное окно перерождения
+        function closeRebirthModal() {
+            document.getElementById('rebirth-modal').style.display = 'none';
+            currentRebirthOption = null;
+        }
+
+        // Подтвердить перерождение
+        function confirmRebirth() {
+            if (currentRebirthOption === null) return;
+            
+            const option = rebirthOptions[currentRebirthOption];
+            
+            // Сброс прогресса
+            playerCards = {};
+            packs.forEach(pack => pack.load = 0);
+            rebirthMultiplier *= option.multiplier; // Умножаем множители
+            rebirths = currentRebirthOption + 1;
+            
+            // Бонусные SU
+            if (option.bonusSU) {
+                currency = option.bonusSU;
+            } else {
+                currency = 1000;
+            }
+            
+            updateCurrencyDisplay();
+            updateTotalIncome();
+            updateCardsDisplay();
+            updateRebirthOptions();
+            renderPacks();
+            updateAchievements();
+            saveGame();
+            
+            showNotification(`🎉 Перерождение завершено! Множитель дохода: x${rebirthMultiplier.toFixed(1)}`);
+            closeRebirthModal();
+        }
+
+        // Обновить коллекции
+        function updateCollections() {
+            const container = document.getElementById('collections-container');
+            container.innerHTML = '';
+            
+            let completedCount = 0;
+            
+            collections.forEach(collection => {
+                const hasAllCards = collection.cards.every(cardName => playerCards[cardName]);
+                collection.completed = hasAllCards;
+                
+                if (hasAllCards) completedCount++;
+                
+                const collectionElement = document.createElement('div');
+                collectionElement.className = `collection ${hasAllCards ? 'completed' : ''}`;
+                
+                collectionElement.innerHTML = `
+                    <h4>${collection.name}</h4>
+                    <p>${collection.cards.join(', ')}</p>
+                    <p><strong>Бонус: +${collection.bonus} к доходу</strong></p>
+                    <p>${hasAllCards ? '✅ Собрано' : '❌ Не собрано'}</p>
+                `;
+                
+                container.appendChild(collectionElement);
+            });
+            
+            collectionsCompleted = completedCount;
+        }
+
+        // Обновить достижения
+        function updateAchievements() {
+            const container = document.getElementById('achievements-container');
+            container.innerHTML = '';
+            
+            achievements.forEach(achievement => {
+                const isUnlocked = achievement.condition({
+                    playerCards,
+                    stats: gameStats,
+                    rebirths,
+                    collectionsCompleted
+                });
+                
+                if (isUnlocked && !achievement.unlocked) {
+                    achievement.unlocked = true;
+                    showNotification(`🏆 Получено достижение: ${achievement.name}`);
+                }
+                
+                const achievementElement = document.createElement('div');
+                achievementElement.className = `achievement ${achievement.gold ? 'gold' : ''} ${achievement.unlocked ? 'unlocked' : ''}`;
+                
+                achievementElement.innerHTML = `
+                    <h4>${achievement.name}</h4>
+                    <p>${achievement.description}</p>
+                    <p>${achievement.unlocked ? '✅ Получено' : '🔒 Не получено'}</p>
+                `;
+                
+                container.appendChild(achievementElement);
+            });
+            
+            saveGame();
+        }
+
+        // Обновить отображение карт
+        function updateCardsDisplay() {
+            const cardsContainer = document.getElementById('cards-container');
+            cardsContainer.innerHTML = '';
+            
+            for (const [playerName, cardData] of Object.entries(playerCards)) {
+                const cardElement = document.createElement('div');
+                const isUpgradable = cardData.player.upgradeOrder !== -1 && cardData.player.upgradeOrder < rarityOrder.length - 1;
+                
+                cardElement.className = `card card-${cardData.player.rarityClass} ${isUpgradable ? 'card-upgradable' : ''}`;
+                
+                cardElement.innerHTML = `
+                    <div class="card-name">${playerName}</div>
+                    <div class="card-rarity">${cardData.player.rarity}</div>
+                    <div class="card-income">${formatNumber(cardData.player.income)} SU/сек</div>
+                    ${isUpgradable ? `<div class="upgrade-cost">Прокачка: 25,000 SU</div>` : ''}
+                    ${cardData.count > 1 ? `<div class="card-count">${cardData.count}</div>` : ''}
+                `;
+                
+                if (isUpgradable) {
+                    cardElement.addEventListener('click', () => openUpgradeModal(playerName));
+                }
+                
+                cardsContainer.appendChild(cardElement);
+            }
+        }
+
+        // Обновить отображение валюты
+        function updateCurrencyDisplay() {
+            document.getElementById('currency-value').textContent = formatNumber(currency);
+        }
+
+        // Обновить общий доход
+        function updateTotalIncome() {
+            totalIncome = 0;
+            
+            // Базовый доход от карточек
+            for (const cardData of Object.values(playerCards)) {
+                totalIncome += cardData.player.income * cardData.count;
+            }
+            
+            // Бонусы от коллекций
+            let collectionBonus = 1.0;
+            collections.forEach(collection => {
+                if (collection.completed) {
+                    collectionBonus += collection.bonus;
+                }
+            });
+            
+            // Итоговый доход с учетом множителей
+            totalIncome = Math.floor(totalIncome * collectionBonus * rebirthMultiplier);
+            
+            document.getElementById('total-income').textContent = formatNumber(totalIncome);
+            document.getElementById('income-multiplier').textContent = `Множитель дохода: x${(collectionBonus * rebirthMultiplier).toFixed(1)}`;
+        }
+
+        // Запустить таймер дохода
+        function startIncomeTimer() {
+            if (incomeInterval) {
+                clearInterval(incomeInterval);
+            }
+            
+            incomeInterval = setInterval(() => {
+                currency += totalIncome;
+                updateCurrencyDisplay();
+                saveGame();
+            }, 1000);
+        }
+
+        // Мини-игра: Lucky-Man
+        function startLuckyManGame() {
+            if (currency < 2500) {
+                showNotification("Недостаточно SU для игры!", true);
+                return;
+            }
+            
+            currency -= 2500;
+            updateCurrencyDisplay();
+            
+            const card = getCardFromPack({
+                "common": 40,
+                "rare": 25,
+                "super-epic": 15,
+                "epic": 10,
+                "legendary": 5,
+                "mythic": 3,
+                "vanished": 1.5,
+                "assistant": 0.5
+            });
+            
+            const rewards = {
+                "common": 1000,
+                "rare": 2500,
+                "super-epic": 5000,
+                "epic": 7500,
+                "legendary": 10000,
+                "mythic": 15000,
+                "vanished": 20000,
+                "assistant": 22500,
+                "captain": 25000
+            };
+            
+            const reward = rewards[card.rarityClass] || 1000;
+            currency += reward;
+            updateCurrencyDisplay();
+            
+            document.getElementById('lucky-man-result').innerHTML = `
+                <p style="color: var(--green)">🎰 Выпало: ${card.name} (${card.rarity})</p>
+                <p>Награда: ${formatNumber(reward)} SU</p>
+            `;
+            
+            saveGame();
+        }
+
+        // Показать уведомление
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${isError ? 'error' : ''} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Инициализация игры при загрузке страницы
+        window.onload = initGame;
+    </script>
+</body>
+</html>
