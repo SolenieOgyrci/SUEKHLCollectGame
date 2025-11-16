@@ -592,7 +592,7 @@
             { name: "ZXzGreafzXZ", income: 125, rarity: "Редкий", rarityClass: "rare", upgradeOrder: 1 },
             { name: "BILAZ", income: 250, rarity: "Сверхредкий", rarityClass: "super-epic", upgradeOrder: 2 },
             { name: "Chorni | ST", income: 350, rarity: "Сверхредкий", rarityClass: "super-epic", upgradeOrder: 2 },
-            { name: "Red_himik", income: 650, rarity: "Эпический", rarityClass: "epic", upgradeOrder: 3 },
+            { name: "temake", income: 650, rarity: "Эпический", rarityClass: "epic", upgradeOrder: 3 },
             { name: "VIZI", income: 1250, rarity: "Легендарный", rarityClass: "legendary", upgradeOrder: 4 },
             { name: "Tysedn", income: 1680, rarity: "Легендарный", rarityClass: "legendary", upgradeOrder: 4 },
             { name: "Chorni | GK", income: 2500, rarity: "Мифический", rarityClass: "mythic", upgradeOrder: 5 },
@@ -600,7 +600,7 @@
             { name: "White", income: 3350, rarity: "Исчезнувший", rarityClass: "vanished", upgradeOrder: 6 },
             { name: "A | Chorni", income: 5000, rarity: "Ассистентский", rarityClass: "assistant", upgradeOrder: 7 },
             { name: "Gartik", income: 10000, rarity: "Капитанский", rarityClass: "captain", upgradeOrder: 8 },
-            { name: "Redris-Red_Himik", income: 15000, rarity: "Комбинированный-Обычный", rarityClass: "combined", upgradeOrder: -1 },
+            { name: "Redris-temake", income: 15000, rarity: "Комбинированный-Обычный", rarityClass: "combined", upgradeOrder: -1 },
             { name: "Chorni-Gartik", income: 50000, rarity: "INFINITY", rarityClass: "infinity", upgradeOrder: -1 }
         ];
 
@@ -639,7 +639,7 @@
             },
             { 
                 name: "Комбинированный без инированный", 
-                cards: ["Redris", "Red_himik"], 
+                cards: ["Redris", "temake"], 
                 bonus: 0.1,
                 completed: false
             },
@@ -657,7 +657,7 @@
             },
             { 
                 name: "Заявка на победу", 
-                cards: ["Gartik", "Redris-Red_Himik", "Chorni-Gartik"], 
+                cards: ["Gartik", "Redris-temake", "Chorni-Gartik"], 
                 bonus: 1.5,
                 completed: false
             }
@@ -893,14 +893,16 @@
             gameStats.packsOpened++;
             updateCurrencyDisplay();
             
-            // Добавление нагруженности
-            const loadIncrease = Math.floor(Math.random() * 10) + 1;
-            pack.load = Math.min(100, pack.load + loadIncrease);
+            // Добавление нагруженности (для ALL OR NOTHING нагруженность не работает)
+            if (pack.name !== "ALL OR NOTHING") {
+                const loadIncrease = Math.floor(Math.random() * 10) + 1;
+                pack.load = Math.min(100, pack.load + loadIncrease);
+            }
             
-            const isOverloaded = pack.load >= 100;
+            const isOverloaded = pack.load >= 100 && pack.name !== "ALL OR NOTHING";
             let cardsCount = 1;
             
-            if (isOverloaded && pack.name !== "ALL OR NOTHING") {
+            if (isOverloaded) {
                 cardsCount = Math.floor(Math.random() * 4) + 2; // 2-5 карточек
                 pack.load = 0; // Сбрасываем нагруженность
                 gameStats.overloadsUsed++;
@@ -1188,7 +1190,15 @@
         // Обновить отображение карт
         function updateCardsDisplay() {
             const cardsContainer = document.getElementById('cards-container');
+            if (!cardsContainer) return; // Защита от ошибки
+            
             cardsContainer.innerHTML = '';
+            
+            // Проверяем, есть ли карточки для отображения
+            if (Object.keys(playerCards).length === 0) {
+                cardsContainer.innerHTML = '<p>У вас пока нет карточек. Откройте паки, чтобы получить карточки!</p>';
+                return;
+            }
             
             for (const [playerName, cardData] of Object.entries(playerCards)) {
                 const cardElement = document.createElement('div');
